@@ -427,17 +427,28 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             public ParameterExpression ContextParameterExpression;
 
-            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            public override Expression Visit(Expression expression)
             {
-                if (typeof(DbContext).GetTypeInfo()
-                    .IsAssignableFrom(constantExpression.Type.GetTypeInfo()))
+                if (expression != null
+                    && typeof(DbContext).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
                 {
-                    return ContextParameterExpression
-                           ?? (ContextParameterExpression
-                               = Expression.Parameter(constantExpression.Type, "context"));
+                    if (ContextParameterExpression == null)
+                    {
+                        ContextParameterExpression = Expression.Parameter(expression.Type, "context");
+                    }
+                    else
+                    {
+                        if (ContextParameterExpression.Type != expression.Type)
+                        {
+                            // TODO:
+                            throw new InvalidOperationException();
+                        }
+                    }
+
+                    return ContextParameterExpression;
                 }
 
-                return constantExpression;
+                return base.Visit(expression);
             }
         }
 
@@ -475,54 +486,54 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
-                {
-                    var memberExpression = (MemberExpression)expression;
-                    var @object = Evaluate(memberExpression.Expression, out parameterName);
-
-                    if (memberExpression.Member is FieldInfo fieldInfo)
                     {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + fieldInfo.Name
-                            : fieldInfo.Name;
+                        var memberExpression = (MemberExpression)expression;
+                        var @object = Evaluate(memberExpression.Expression, out parameterName);
 
-                        try
+                        if (memberExpression.Member is FieldInfo fieldInfo)
                         {
-                            return fieldInfo.GetValue(@object);
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + fieldInfo.Name
+                                : fieldInfo.Name;
+
+                            try
+                            {
+                                return fieldInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
-                        catch
+
+                        if (memberExpression.Member is PropertyInfo propertyInfo)
                         {
-                            // Try again when we compile the delegate
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + propertyInfo.Name
+                                : propertyInfo.Name;
+
+                            try
+                            {
+                                return propertyInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
+
+                        break;
                     }
-
-                    if (memberExpression.Member is PropertyInfo propertyInfo)
-                    {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + propertyInfo.Name
-                            : propertyInfo.Name;
-
-                        try
-                        {
-                            return propertyInfo.GetValue(@object);
-                        }
-                        catch
-                        {
-                            // Try again when we compile the delegate
-                        }
-                    }
-
-                    break;
-                }
                 case ExpressionType.Constant:
-                {
-                    return ((ConstantExpression)expression).Value;
-                }
+                    {
+                        return ((ConstantExpression)expression).Value;
+                    }
                 case ExpressionType.Call:
-                {
-                    parameterName = ((MethodCallExpression)expression).Method.Name;
+                    {
+                        parameterName = ((MethodCallExpression)expression).Method.Name;
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             try
