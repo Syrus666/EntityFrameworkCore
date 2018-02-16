@@ -330,7 +330,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityType,
                 false))
             {
-                _logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
+                if (propertiesToReference.All(p => !p.IsShadowProperty
+                                                   || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
+                {
+                    _logger.IncompatibleMatchingForeignKeyProperties(foreignKeyProperties, propertiesToReference);
+                }
+
                 return new Property[0];
             }
 
@@ -500,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (conflictingShadowFk != null)
                         {
                             conflictingFkFound = true;
-                            _logger.ConflictingShadowForeignKeys(conflictingShadowFk);
+                            _logger.ConflictingShadowForeignKeysWarning(conflictingShadowFk);
                         }
                     }
                 }

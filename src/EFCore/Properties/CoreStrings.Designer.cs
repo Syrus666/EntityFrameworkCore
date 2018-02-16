@@ -2011,14 +2011,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContextWarning
+        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContext
             = new EventDefinition<string, string>(
                 CoreEventId.LazyLoadOnDisposedContextWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     CoreEventId.LazyLoadOnDisposedContextWarning,
-                    _resourceManager.GetString("LogLazyLoadOnDisposedContextWarning")));
+                    _resourceManager.GetString("LogLazyLoadOnDisposedContext")));
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.
@@ -2185,11 +2185,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeys
             = new EventDefinition<string, string, string>(
-                CoreEventId.ConflictingShadowForeignKeys,
+                CoreEventId.ConflictingShadowForeignKeysWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.ConflictingShadowForeignKeys,
+                    CoreEventId.ConflictingShadowForeignKeysWarning,
                     _resourceManager.GetString("LogConflictingShadowForeignKeys")));
 
         /// <summary>
@@ -2237,11 +2237,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation
             = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonDefiningInverseNavigation,
+                CoreEventId.NonDefiningInverseNavigationWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.NonDefiningInverseNavigation,
+                    CoreEventId.NonDefiningInverseNavigationWarning,
                     _resourceManager.GetString("LogNonDefiningInverseNavigation")));
 
         /// <summary>
@@ -2249,11 +2249,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation
             = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonOwnershipInverseNavigation,
+                CoreEventId.NonOwnershipInverseNavigationWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.NonOwnershipInverseNavigation,
+                    CoreEventId.NonOwnershipInverseNavigationWarning,
                     _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
 
         /// <summary>
